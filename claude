@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexEra Marketer — We Build Brands That Dominate</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96B;
+    --gold-dim: #8A6E2F;
+    --bg: #080808;
+    --bg2: #0F0F0F;
+    --bg3: #141414;
+    --text: #F5F0E8;
+    --muted: #6B6560;
+    --accent: #C9A84C;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom Cursor */
+  #cursor {
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+    mix-blend-mode: difference;
+  }
+  #cursor-ring {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(201,168,76,0.5);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease, width 0.3s, height 0.3s;
+  }
+  body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 20px; height: 20px; }
+
+  /* Canvas */
+  #particles-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.4s, padding 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(8,8,8,0.92);
+    backdrop-filter: blur(20px);
+    padding: 16px 60px;
+    border-bottom: 0.5px solid rgba(201,168,76,0.15);
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--text);
+    text-decoration: none;
+    position: relative;
+  }
+  .logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 40px; list-style: none; }
+  .nav-links a {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--gold);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--gold);
+    border: none;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 0 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--gold-dim);
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 12vw, 160px);
+    line-height: 0.9;
+    letter-spacing: -2px;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeUp 0.9s 0.5s forwards;
+    position: relative;
+  }
+  .hero-title .outline {
+    -webkit-text-stroke: 1px var(--gold-dim);
+    color: transparent;
+  }
+  .hero-title .gold { color: var(--gold); }
+  .hero-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin: 32px auto 48px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.7s forwards;
+  }
+  .hero-btns {
+    display: flex; gap: 16px; align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.9s forwards;
+  }
+  .btn-primary {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: var(--bg);
+    border: none;
+    padding: 16px 40px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute; top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.15);
+    transition: left 0.4s;
+  }
+  .btn-primary:hover::before { left: 100%; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.3); }
+  .btn-secondary {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--muted);
+    border: 0.5px solid rgba(107,101,96,0.4);
+    padding: 15px 32px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-secondary:hover { color: var(--text); border-color: var(--text); }
+
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0; animation: fadeUp 0.9s 1.2s forwards;
+  }
+  .scroll-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted);
+  }
+  .scroll-line {
+    width: 1px; height: 60px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  /* MARQUEE */
+  .marquee-section {
+    border-top: 0.5px solid rgba(201,168,76,0.1);
+    border-bottom: 0.5px solid rgba(201,168,76,0.1);
+    padding: 20px 0;
+    overflow: hidden;
+    position: relative; z-index: 1;
+    background: var(--bg2);
+  }
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: marquee 20s linear infinite;
+    width: max-content;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    padding: 0 40px;
+    display: flex; align-items: center; gap: 40px;
+  }
+  .marquee-item .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+
+  /* SECTION BASE */
+  section { position: relative; z-index: 1; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 60px; }
+  .section-pad { padding: 120px 0; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 5px; text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before {
+    content: ''; width: 30px; height: 1px; background: var(--gold-dim);
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 80px);
+    line-height: 1;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: 16px; font-weight: 300;
+    color: var(--muted); line-height: 1.7;
+    max-width: 480px;
+  }
+
+  /* ABOUT / NUMBERS */
+  .about-section { background: var(--bg); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-image-box {
+    position: relative; aspect-ratio: 4/5;
+    background: var(--bg3);
+    border: 0.5px solid rgba(201,168,76,0.15);
+    overflow: hidden;
+  }
+  .about-image-box::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 60%);
+  }
+  .about-image-inner {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
+  }
+  .about-big-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px; color: rgba(201,168,76,0.08);
+    line-height: 1; letter-spacing: -4px;
+  }
+  .about-image-tag {
+    position: absolute; bottom: 24px; left: 24px;
+    background: var(--gold);
+    padding: 12px 20px;
+  }
+  .about-image-tag p {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--bg);
+  }
+  .about-image-tag .tag-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px; color: var(--bg); line-height: 1;
+  }
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+  .stat-box {
+    padding: 24px;
+    border: 0.5px solid rgba(201,168,76,0.12);
+    background: var(--bg2);
+    position: relative; overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .stat-box:hover { border-color: rgba(201,168,76,0.4); transform: translateY(-4px); }
+  .stat-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 0; height: 1px;
+    background: var(--gold);
+    transition: width 0.5s;
+  }
+  .stat-box:hover::before { width: 100%; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px; color: var(--gold);
+    line-height: 1; letter-spacing: -1px;
+  }
+  .stat-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: var(--muted); margin-top: 4px;
+    font-weight: 300; letter-spacing: 0.5px;
+  }
+
+  /* SERVICES */
+  .services-section { background: var(--bg2); }
+  .services-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 60px;
+  }
+  .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(201,168,76,0.08); }
+  .service-card {
+    background: var(--bg2);
+    padding: 48px 36px;
+    position: relative; overflow: hidden;
+    transition: background 0.4s;
+    cursor: default;
+  }
+  .service-card:hover { background: var(--bg3); }
+  .service-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--gold);
+    transition: width 0.5s;
+  }
+  .service-card:hover::after { width: 100%; }
+  .service-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px; color: rgba(201,168,76,0.06);
+    line-height: 1; position: absolute;
+    top: 16px; right: 24px;
+    transition: color 0.4s;
+  }
+  .service-card:hover .service-num { color: rgba(201,168,76,0.1); }
+  .service-icon {
+    width: 48px; height: 48px;
+    border: 0.5px solid rgba(201,168,76,0.3);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .service-card:hover .service-icon {
+    background: rgba(201,168,76,0.1);
+    border-color: var(--gold);
+  }
+  .service-icon svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+  .service-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 700;
+    color: var(--text); margin-bottom: 12px;
+  }
+  .service-desc {
+    font-size: 14px; font-weight: 300;
+    color: var(--muted); line-height: 1.7;
+  }
+  .service-link {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 24px;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold-dim);
+    text-decoration: none;
+    transition: gap 0.3s, color 0.3s;
+  }
+  .service-card:hover .service-link { gap: 14px; color: var(--gold); }
+  .service-link svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+  /* WHY US */
+  .why-section { background: var(--bg); }
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .why-list { margin-top: 40px; display: flex; flex-direction: column; gap: 0; }
+  .why-item {
+    padding: 28px 0;
+    border-bottom: 0.5px solid rgba(201,168,76,0.1);
+    display: flex; gap: 24px; align-items: flex-start;
+    transition: padding-left 0.3s;
+  }
+  .why-item:hover { padding-left: 12px; }
+  .why-item-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px; color: rgba(201,168,76,0.25);
+    line-height: 1; min-width: 48px;
+    transition: color 0.3s;
+  }
+  .why-item:hover .why-item-num { color: var(--gold); }
+  .why-item-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px; font-weight: 600;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .why-item-desc { font-size: 14px; font-weight: 300; color: var(--muted); line-height: 1.6; }
+  .why-visual {
+    aspect-ratio: 1;
+    background: var(--bg3);
+    border: 0.5px solid rgba(201,168,76,0.12);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .why-visual-ring {
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.15);
+    display: flex; align-items: center; justify-content: center;
+    animation: spin 20s linear infinite;
+  }
+  .why-visual-ring2 {
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.1);
+    display: flex; align-items: center; justify-content: center;
+    animation: spinR 15s linear infinite;
+  }
+  .why-visual-center {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px; color: var(--gold);
+    line-height: 1; text-align: center;
+  }
+  .why-visual-center small {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px; letter-spacing: 4px;
+    color: var(--muted); font-weight: 400;
+    margin-top: 4px;
+  }
+  .why-dot {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* PROCESS */
+  .process-section { background: var(--bg2); }
+  .process-steps {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative; margin-top: 60px;
+  }
+  .process-steps::before {
+    content: '';
+    position: absolute; top: 24px; left: 0; right: 0;
+    height: 0.5px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  }
+  .process-step { padding: 0 24px 0 0; }
+  .process-step-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    background: var(--bg2);
+    margin-bottom: 32px;
+    position: relative; z-index: 1;
+    transition: background 0.3s;
+  }
+  .process-step:hover .process-step-dot { background: var(--gold); }
+  .process-step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px; letter-spacing: 3px;
+    color: var(--gold-dim); margin-bottom: 12px;
+  }
+  .process-step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 700;
+    color: var(--text); margin-bottom: 12px;
+  }
+  .process-step-desc {
+    font-size: 14px; font-weight: 300;
+    color: var(--muted); line-height: 1.7;
+  }
+
+  /* TESTIMONIALS */
+  .testi-section { background: var(--bg); }
+  .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 60px; }
+  .testi-card {
+    padding: 36px;
+    border: 0.5px solid rgba(201,168,76,0.1);
+    background: var(--bg2);
+    position: relative; overflow: hidden;
+    transition: border-color 0.4s, transform 0.3s;
+  }
+  .testi-card:hover { border-color: rgba(201,168,76,0.3); transform: translateY(-6px); }
+  .testi-quote {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px; color: rgba(201,168,76,0.1);
+    line-height: 0.7; margin-bottom: 16px;
+  }
+  .testi-text {
+    font-size: 15px; font-weight: 300;
+    color: var(--text); line-height: 1.7;
+    font-style: italic; margin-bottom: 24px;
+  }
+  .testi-divider { width: 32px; height: 1px; background: var(--gold-dim); margin-bottom: 20px; }
+  .testi-author { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; color: var(--text); }
+  .testi-role { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .stars { display: flex; gap: 3px; margin-bottom: 16px; }
+  .star { color: var(--gold); font-size: 12px; }
+
+  /* CTA SECTION */
+  .cta-section {
+    background: var(--bg2);
+    border-top: 0.5px solid rgba(201,168,76,0.1);
+    border-bottom: 0.5px solid rgba(201,168,76,0.1);
+  }
+  .cta-inner {
+    text-align: center;
+    padding: 120px 0;
+    position: relative;
+  }
+  .cta-bg-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 15vw, 200px);
+    color: rgba(201,168,76,0.03);
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: -4px;
+    line-height: 1;
+  }
+  .cta-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 8vw, 100px);
+    line-height: 0.95; color: var(--text);
+    position: relative; z-index: 1;
+  }
+  .cta-title .gold { color: var(--gold); }
+  .cta-sub {
+    font-size: 17px; font-weight: 300;
+    color: var(--muted); line-height: 1.7;
+    max-width: 480px; margin: 24px auto 48px;
+    position: relative; z-index: 1;
+  }
+  .cta-btns { display: flex; gap: 16px; justify-content: center; position: relative; z-index: 1; }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg);
+    border-top: 0.5px solid rgba(201,168,76,0.1);
+    padding: 80px 0 40px;
+    position: relative; z-index: 1;
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px; margin-bottom: 60px;
+  }
+  .footer-brand-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px; letter-spacing: 3px;
+    color: var(--text); margin-bottom: 16px;
+  }
+  .footer-brand-name span { color: var(--gold); }
+  .footer-desc {
+    font-size: 14px; font-weight: 300;
+    color: var(--muted); line-height: 1.7;
+    max-width: 280px; margin-bottom: 32px;
+  }
+  .social-links { display: flex; gap: 12px; }
+  .social-link {
+    width: 36px; height: 36px;
+    border: 0.5px solid rgba(107,101,96,0.4);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); text-decoration: none;
+    font-size: 14px; font-weight: 500;
+    font-family: 'Syne', sans-serif;
+    transition: all 0.3s;
+  }
+  .social-link:hover { border-color: var(--gold); color: var(--gold); }
+  .footer-col-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 24px;
+  }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-links a {
+    font-size: 14px; font-weight: 300;
+    color: var(--muted); text-decoration: none;
+    transition: color 0.3s, padding-left 0.3s;
+    display: block;
+  }
+  .footer-links a:hover { color: var(--text); padding-left: 8px; }
+  .footer-bottom {
+    border-top: 0.5px solid rgba(201,168,76,0.1);
+    padding-top: 32px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-copy {
+    font-size: 13px; font-weight: 300;
+    color: var(--muted); letter-spacing: 0.5px;
+  }
+  .footer-copy span { color: var(--gold); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spinR { to { transform: rotate(-360deg); } }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* REVEAL on scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.02;
+    pointer-events: none;
+    z-index: 9997;
+  }
+
+  /* GLOW ORBS */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width: 500px; height: 500px; background: rgba(201,168,76,0.04); top: -100px; right: -100px; }
+  .orb2 { width: 400px; height: 400px; background: rgba(201,168,76,0.03); bottom: 20%; left: -100px; }
+
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    .nav-links { display: none; }
+    .container { padding: 0 24px; }
+    .section-pad { padding: 80px 0; }
+    .about-grid, .why-grid { grid-template-columns: 1fr; }
+    .about-image-box { display: none; }
+    .services-grid { grid-template-columns: 1fr; }
+    .process-steps { grid-template-columns: 1fr 1fr; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .services-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .hero-btns { flex-direction: column; }
+    .cta-btns { flex-direction: column; align-items: center; }
+    .why-visual { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="particles-canvas"></canvas>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="logo">NEX<span>ERA</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#testimonials">Results</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('contact-section').scrollIntoView({behavior:'smooth'})">Get Started</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">India's Premier Digital Agency</div>
+  <h1 class="hero-title">
+    WE BUILD<br>
+    <span class="outline">BRANDS</span> THAT<br>
+    <span class="gold">DOMINATE</span>
+  </h1>
+  <p class="hero-sub">NexEra Marketer transforms ambitious businesses into industry leaders through bold strategy, precision marketing, and relentless execution.</p>
+  <div class="hero-btns">
+    <a href="#services" class="btn-primary">Explore Services</a>
+    <a href="#about" class="btn-secondary">Our Story ↓</a>
+  </div>
+  <div class="hero-scroll">
+    <span class="scroll-text">Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item">Performance Marketing <span class="dot"></span></div>
+    <div class="marquee-item">Brand Strategy <span class="dot"></span></div>
+    <div class="marquee-item">Social Media <span class="dot"></span></div>
+    <div class="marquee-item">SEO & Growth <span class="dot"></span></div>
+    <div class="marquee-item">Content Creation <span class="dot"></span></div>
+    <div class="marquee-item">Web Design <span class="dot"></span></div>
+    <div class="marquee-item">Video Production <span class="dot"></span></div>
+    <div class="marquee-item">Influencer Marketing <span class="dot"></span></div>
+    <div class="marquee-item">Performance Marketing <span class="dot"></span></div>
+    <div class="marquee-item">Brand Strategy <span class="dot"></span></div>
+    <div class="marquee-item">Social Media <span class="dot"></span></div>
+    <div class="marquee-item">SEO & Growth <span class="dot"></span></div>
+    <div class="marquee-item">Content Creation <span class="dot"></span></div>
+    <div class="marquee-item">Web Design <span class="dot"></span></div>
+    <div class="marquee-item">Video Production <span class="dot"></span></div>
+    <div class="marquee-item">Influencer Marketing <span class="dot"></span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about-section section-pad" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-image-box reveal">
+        <div class="about-image-inner">
+          <div class="about-big-num">NE</div>
+        </div>
+        <div class="about-image-tag">
+          <p class="tag-num">2019</p>
+          <p>Founded</p>
+        </div>
+      </div>
+      <div>
+        <div class="section-label reveal">About NexEra</div>
+        <h2 class="section-title reveal">WE'RE NOT AN<br>AGENCY. WE'RE<br>YOUR GROWTH<br>PARTNER.</h2>
+        <p class="section-desc reveal">Born in India, built for the world. NexEra Marketer combines data-driven intelligence with creative excellence to deliver marketing that actually moves the needle.</p>
+        <div class="stats-row">
+          <div class="stat-box reveal reveal-delay-1">
+            <div class="stat-num" data-target="200">0</div>
+            <div class="stat-label">Brands Elevated</div>
+          </div>
+          <div class="stat-box reveal reveal-delay-2">
+            <div class="stat-num" data-target="500">0</div>
+            <div class="stat-label">Crores Revenue Generated</div>
+          </div>
+          <div class="stat-box reveal reveal-delay-3">
+            <div class="stat-num" data-target="98">0</div>
+            <div class="stat-label">Client Satisfaction %</div>
+          </div>
+          <div class="stat-box reveal reveal-delay-4">
+            <div class="stat-num" data-target="5">0</div>
+            <div class="stat-label">Years of Excellence</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services-section section-pad" id="services">
+  <div class="container">
+    <div class="services-header">
+      <div>
+        <div class="section-label reveal">What We Do</div>
+        <h2 class="section-title reveal">SERVICES THAT<br>SCALE</h2>
+      </div>
+      <p class="section-desc reveal" style="margin-bottom:0;">Every service is engineered for measurable results, not vanity metrics.</p>
+    </div>
+    <div class="services-grid">
+
+      <div class="service-card reveal">
+        <div class="service-num">01</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="service-name">Performance Marketing</div>
+        <div class="service-desc">ROI-obsessed campaigns across Meta, Google, and programmatic platforms. We spend your budget like it's our own.</div>
+        <a href="#" class="service-link">Learn More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-num">02</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div class="service-name">Brand Strategy</div>
+        <div class="service-desc">We craft brand identities that command respect, drive loyalty, and create lasting market position in competitive landscapes.</div>
+        <a href="#" class="service-link">Learn More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-num">03</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="service-name">Social Media</div>
+        <div class="service-desc">Content ecosystems that build communities, drive engagement, and convert followers into loyal brand advocates.</div>
+        <a href="#" class="service-link">Learn More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-num">04</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 21l-6-6m6 6v-4m0 4h-4M3 3a9 9 0 1 1 13.28 12.28"/></svg>
+        </div>
+        <div class="service-name">SEO & Growth</div>
+        <div class="service-desc">Dominate search results with technical excellence, authority building, and content strategies that compound over time.</div>
+        <a href="#" class="service-link">Learn More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-num">05</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        </div>
+        <div class="service-name">Video Production</div>
+        <div class="service-desc">Cinematic brand films, high-converting reels, and YouTube strategies that make your audience stop scrolling.</div>
+        <a href="#" class="service-link">Learn More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-num">06</div>
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="service-name">Web Design</div>
+        <div class="service-desc">Conversion-optimized websites that are as beautiful as they are effective. Every pixel has a purpose.</div>
+        <a href="#" class="service-link">Learn More <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="why-section section-pad" id="why">
+  <div class="container">
+    <div class="why-grid">
+      <div>
+        <div class="section-label reveal">Why NexEra</div>
+        <h2 class="section-title reveal">THE NEXERA<br>DIFFERENCE</h2>
+        <p class="section-desc reveal">We don't just run campaigns. We build marketing machines that generate predictable, scalable revenue.</p>
+        <div class="why-list">
+          <div class="why-item reveal">
+            <div class="why-item-num">01</div>
+            <div>
+              <div class="why-item-title">Data-First Approach</div>
+              <div class="why-item-desc">Every decision is backed by deep analytics and real-time performance data. No guesswork, ever.</div>
+            </div>
+          </div>
+          <div class="why-item reveal reveal-delay-1">
+            <div class="why-item-num">02</div>
+            <div>
+              <div class="why-item-title">Full-Funnel Strategy</div>
+              <div class="why-item-desc">From awareness to conversion to retention — we own the entire customer journey.</div>
+            </div>
+          </div>
+          <div class="why-item reveal reveal-delay-2">
+            <div class="why-item-num">03</div>
+            <div>
+              <div class="why-item-title">Dedicated Team</div>
+              <div class="why-item-desc">A hand-picked squad of specialists exclusively focused on growing your brand. No freelancers.</div>
+            </div>
+          </div>
+          <div class="why-item reveal reveal-delay-3">
+            <div class="why-item-num">04</div>
+            <div>
+              <div class="why-item-title">Transparent Reporting</div>
+              <div class="why-item-desc">Real-time dashboards and weekly calls. You always know exactly where your money is going.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="why-visual reveal">
+        <div class="why-visual-ring">
+          <div class="why-visual-ring2">
+            <div class="why-visual-center">
+              NE<br>
+              <small>NEXERA MARKETER</small>
+            </div>
+          </div>
+        </div>
+        <div class="why-dot" style="top:20%; left:10%; animation: float 3s ease-in-out infinite;"></div>
+        <div class="why-dot" style="top:70%; right:15%; animation: float 4s ease-in-out infinite 1s;"></div>
+        <div class="why-dot" style="top:40%; right:8%; animation: float 3.5s ease-in-out infinite 0.5s;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process-section section-pad" id="process">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:0;">
+      <div class="section-label reveal" style="justify-content:center;">Our Process</div>
+      <h2 class="section-title reveal" style="text-align:center;">HOW WE WORK</h2>
+    </div>
+    <div class="process-steps">
+      <div class="process-step reveal">
+        <div class="process-step-dot"></div>
+        <div class="process-step-num">Step 01</div>
+        <div class="process-step-title">Discovery</div>
+        <div class="process-step-desc">We go deep into your business, audience, competitors, and market position to build the complete picture.</div>
+      </div>
+      <div class="process-step reveal reveal-delay-1">
+        <div class="process-step-dot"></div>
+        <div class="process-step-num">Step 02</div>
+        <div class="process-step-title">Strategy</div>
+        <div class="process-step-desc">A custom-built growth roadmap with clear KPIs, timelines, and channel mix designed for your goals.</div>
+      </div>
+      <div class="process-step reveal reveal-delay-2">
+        <div class="process-step-dot"></div>
+        <div class="process-step-num">Step 03</div>
+        <div class="process-step-title">Execution</div>
+        <div class="process-step-desc">Rapid deployment with relentless A/B testing, creative iteration, and performance optimization.</div>
+      </div>
+      <div class="process-step reveal reveal-delay-3">
+        <div class="process-step-dot"></div>
+        <div class="process-step-num">Step 04</div>
+        <div class="process-step-title">Scale</div>
+        <div class="process-step-desc">What works gets amplified. We systematically scale winners and cut losers with surgical precision.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-section section-pad" id="testimonials">
+  <div class="container">
+    <div class="section-label reveal">Client Results</div>
+    <h2 class="section-title reveal">WHAT OUR CLIENTS<br>SAY</h2>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">"</div>
+        <div class="testi-text">NexEra completely transformed our online presence. Our revenue grew 3x in just 6 months. Best investment we ever made for our brand.</div>
+        <div class="testi-divider"></div>
+        <div class="testi-author">Arjun Sharma</div>
+        <div class="testi-role">Founder, StyleHive India</div>
+      </div>
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">"</div>
+        <div class="testi-text">The team is exceptional — strategic, creative, and incredibly responsive. Our CAC dropped by 40% while our conversion rate doubled.</div>
+        <div class="testi-divider"></div>
+        <div class="testi-author">Priya Menon</div>
+        <div class="testi-role">CMO, TechBridge Solutions</div>
+      </div>
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">"</div>
+        <div class="testi-text">They don't just run ads — they understand business. NexEra became a true extension of our marketing team and delivered beyond expectations.</div>
+        <div class="testi-divider"></div>
+        <div class="testi-author">Rahul Kapoor</div>
+        <div class="testi-role">Director, LuxeEstate Group</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact-section">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="cta-bg-text">NEXERA</div>
+      <div class="cta-title reveal">
+        READY TO<br><span class="gold">DOMINATE</span><br>YOUR MARKET?
+      </div>
+      <p class="cta-sub reveal">Let's build something extraordinary together. Book a free strategy session with our experts today.</p>
+      <div class="cta-btns reveal">
+        <a href="mailto:hello@nexeramarketer.com" class="btn-primary">Book Free Strategy Call</a>
+        <a href="tel:+919999999999" class="btn-secondary">+91 99999 99999</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">NEX<span>ERA</span></div>
+        <p class="footer-desc">India's most results-driven marketing agency. We build brands that dominate their markets.</p>
+        <div class="social-links">
+          <a href="#" class="social-link">In</a>
+          <a href="#" class="social-link">Ig</a>
+          <a href="#" class="social-link">Tw</a>
+          <a href="#" class="social-link">Yt</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Services</div>
+        <ul class="footer-links">
+          <li><a href="#">Performance Marketing</a></li>
+          <li><a href="#">Brand Strategy</a></li>
+          <li><a href="#">Social Media</a></li>
+          <li><a href="#">SEO & Growth</a></li>
+          <li><a href="#">Web Design</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Our Process</a></li>
+          <li><a href="#">Case Studies</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Contact</div>
+        <ul class="footer-links">
+          <li><a href="#">hello@nexeramarketer.com</a></li>
+          <li><a href="#">+91 99999 99999</a></li>
+          <li><a href="#">Mumbai, India</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2024 <span>NexEra Marketer</span>. All rights reserved.</p>
+      <p class="footer-copy">Crafted with <span>✦</span> in India</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ---- CURSOR ----
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animCursor() {
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+
+// ---- NAV SCROLL ----
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ---- PARTICLES ----
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 1.5 + 0.3;
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.speedY = (Math.random() - 0.5) * 0.3;
+    this.opacity = Math.random() * 0.5 + 0.1;
+    this.life = 0;
+    this.maxLife = Math.random() * 300 + 200;
+  }
+  update() {
+    this.x += this.speedX; this.y += this.speedY;
+    this.life++;
+    if (this.life > this.maxLife || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+  }
+  draw() {
+    const fade = Math.sin((this.life / this.maxLife) * Math.PI);
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(201, 168, 76, ${this.opacity * fade})`;
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+function animParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+
+  // Draw lines between close particles
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 100) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(201, 168, 76, ${0.06 * (1 - dist / 100)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animParticles);
+}
+animParticles();
+
+// ---- SCROLL REVEAL ----
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+// ---- COUNTER ANIMATION ----
+function animateCounter(el, target, suffix = '') {
+  let start = 0;
+  const duration = 2000;
+  const step = (timestamp) => {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(eased * target) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const target = parseInt(e.target.dataset.target);
+      const suffix = target === 500 ? 'Cr+' : target === 98 ? '%' : '+';
+      animateCounter(e.target, target, suffix);
+      statObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-target]').forEach(el => statObserver.observe(el));
+
+// ---- PARALLAX HERO ----
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  const heroTitle = document.querySelector('.hero-title');
+  const heroSub = document.querySelector('.hero-sub');
+  if (heroTitle) heroTitle.style.transform = `translateY(${scrollY * 0.15}px)`;
+  if (heroSub) heroSub.style.transform = `translateY(${scrollY * 0.08}px)`;
+});
+</script>
+</body>
+</html>
